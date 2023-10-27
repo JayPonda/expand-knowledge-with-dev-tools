@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./bin/www",
+    "dev": "set DEBUG=learn_express:* & npm start"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
