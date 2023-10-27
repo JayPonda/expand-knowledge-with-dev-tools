@@ -14,8 +14,11 @@ services:
       context: .
     environment:
       NODE_ENV: dev
+      JSON_SERVER_PORT: ${JSON_SERVER_PORT}
+      JSON_SERVER_Full_URL: ${JSON_SERVER_PROTOCOL}://${JSON_SERVER_HOST}:${JSON_SERVER_PORT}
     ports:
       - 3000:3000
+      - 4000:4000
     volumes:
       - ./:/app
 
