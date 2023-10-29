@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      * {
+        padding: 0;
+        margin: 0;
+      }
+
+      body {
+        box-sizing: border-box;
+        width: 100%;
+        height: 100vh;
+        position: relative;
+        height: 100vh;
+        width: 100%;
+        background-image: url(beautiful-nature-landscape-with-mountains-lake_23-2150706029.jpg);
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+      }
+
+      main {
+        height: calc(100% - 30px);
+        width: calc(100% - 30px);
+        padding: 10px;
+        display: flex;
+        justify-content: center;
+      }
+
+      .todo-list-box,
+      .popup-bg .popup {
+        min-width: 500px;
+        width: 60%;
+        height: 100%;
+        background-image: linear-gradient(
+          90deg,
+          rgba(95, 95, 95, 0.3),
+          rgba(23, 17, 32, 0.3)
+        );
+        backdrop-filter: blur(3px);
+        padding: 5px;
+        display: flex;
+        flex-direction: column;
+        border-radius: 10px;
+        border: 2px solid rgba(0, 1, 34, 0.429);
+        box-shadow: 3px 3px 15px rgba(0, 51, 83, 0.756);
+      }
+
+      .heading {
+        padding-bottom: 10px;
+        text-align: center;
+        padding-top: 20px;
+        text-shadow: 2px 2px 5px gray;
+        font-weight: 900;
+        font-family: "Lucida Sans Regular";
+      }
+
+      .inputs {
+        display: flex;
+        align-items: center;
+      }
+
+      .inputs > *,
+      .todo-detail div button {
+        max-height: 30px;
+        padding: 5px;
+        margin: 2px;
+        align-items: center;
+        font-weight: 600;
+        border-radius: 5px;
+      }
+
+      .todo-list {
+        height: 100%;
+        overflow: auto;
+        padding: 5px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        flex-grow: 1;
+      }
+
+      .table {
+        width: 100%;
+        background-color: aqua;
+      }
+
+      .table .cell {
+        text-align: center;
+        background-color: aliceblue;
+        height: 2rem;
+      }
+
+      .cell {
+        margin: 2px;
+        cursor: pointer;
+      }
+
+      .hide_elm {
+        visibility: hidden;
+        display: none;
+      }
+
+      .popup-bg {
+        height: 100vh;
+        backdrop-filter: blur(5px);
+        width: 100%;
+        position: absolute;
+        z-index: 20;
+        top: 0;
+        left: 0;
+        background-color: rgba(135, 135, 135, 0.263);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+      }
+
+      .popup-bg .popup {
+        min-width: 100px;
+        height: max-content;
+        width: 400px;
+        box-sizing: border-box;
+        padding: 0px;
+        background-color: rgb(255, 234, 207);
+        border-radius: 10px;
+        cursor: default;
+      }
+
+      .popup .popup-heading {
+        margin: 0px;
+        padding: 5px;
+        background-color: rgba(87, 87, 87, 0.74);
+        border-top-right-radius: 8px;
+        border-top-left-radius: 8px;
+      }
+
+      .popup .todo-detail {
+        display: flex;
+        flex-direction: column;
+        padding: 5px;
+      }
+
+      #popup-todo-text {
+        padding: 5px;
+        resize: vertical;
+        max-height: 500px;
+        min-height: 90px;
+      }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  </head>
+  <body>
+    <main>
+      <div class="todo-list-box">
+        <section>
+          <h2 class="heading">TODO LIST</h2>
+        </section>
+
+        <!--add new todo-->
+        <section class="inputs">
+          <input
+            type="text"
+            id="todo"
+            placeholder="I WANT TO TRAVEL PARIS"
+            style="flex-grow: 1"
+          />
+          <button id="add-btn" style="display: block">ADD</button>
+          <button id="cancle-btn" onclick="cancle_operation(event, () => true)">
+            CANCLE
+          </button>
+        </section>
+
+        <!--show todos-->
+        <section class="todo-list">
+          <table class="table">
+            <thead>
+              <th class="cell header selection" id="todo-selection-header"></th>
+              <th class="cell header">ID</th>
+              <th class="cell header" style="max-width: 50%">TODO</th>
+              <th class="cell header">CREATE</th>
+              <th class="cell header">DONE</th>
+              <th class="cell header">DELAY</th>
+            </thead>
+          </table>
+        </section>
+      </div>
+    </main>
+
+    <div
+      class="popup-bg hide_elm"
+      id="popup-todo"
+      onclick="event.stopPropagation(); cancle_operation(event, () => event.target == this)"
+    >
+      <div class="popup">
+        <div class="popup-heading">
+          <h3>My Todo <span id="created_at">time</span></h3>
+        </div>
+        <div class="todo-detail">
+          <label for="popup-todo-text">Todo</label>
+          <textarea name="" type="text" id="popup-todo-text"></textarea>
+          <div>
+            <div style="float: right">
+              <span id="event_message_prefix">This event is done</span>
+              <span id="last_updated_on">time</span>
+            </div>
+          </div>
+          <hr />
+          <div>
+            <button id="mark_as_done_popup" onclick="mark_as_done_todo(event)">
+              Mark As Done
+            </button>
+            <button id="update_popup" onclick="update(event)">Update</button>
+            <button id="delete_popup" onclick="delete_todos(event)">
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let current_state = "add";
+      let selection_show = false;
+      let popup_state = true;
+      let popup_record = null;
+      let popup_row = null;
+      let todo_list = [];
+      const row_title = [
+        "",
+        "id",
+        "todo",
+        "created_at",
+        "done_at",
+        "updated_at",
+      ];
+
+      const todo_input = document.querySelector("#todo");
+      const add_btn = document.querySelector("#add-btn");
+      const cancle_btn = document.querySelector("#cancle-btn");
+      const selection_header = document.querySelector("#todo-selection-header");
+      const popup = document.querySelector("#popup-todo");
+      add_btn.addEventListener("click", add_todo);
+
+      const get_all_selection_elements = () =>
+        document.querySelectorAll("td.selection");
+
+      const get_selected_elements = () =>
+        Array.from(get_all_selection_elements()).filter(function (element) {
+          const checkbox = element.querySelector('input[type="checkbox"]');
+          return checkbox && checkbox.checked;
+        });
+
+      const get_record_by_id = (id) =>
+        todo_list.find((element) => (element.id = id));
+
+      //ui update
+
+      const change_visibility = (elements, let_hide) => {
+        if (!(elements instanceof NodeList)) {
+          let_hide
+            ? elements.classList.add("hide_elm")
+            : elements.classList.remove("hide_elm");
+          return;
+        }
+
+        let_hide
+          ? Array.from(elements).forEach((element) => {
+              element.classList.add("hide_elm");
+            })
+          : Array.from(elements).forEach((element) => {
+              element.classList.remove("hide_elm");
+            });
+      };
+
+      const change_selection_visibility = (isVisibile) => {
+        if (isVisibile == undefined) {
+          isVisibile = !selection_show;
+        }
+
+        change_visibility(selection_header, isVisibile);
+        change_visibility(get_all_selection_elements(), isVisibile);
+
+        selection_show = isVisibile;
+      };
+
+      const cancle_selection = (hide_section) => {
+        const elements = get_selected_elements();
+        Array.from(elements).forEach((element) => {
+          element.querySelector("input").checked = false;
+        });
+
+        if (hide_section) change_selection_visibility(hide_section);
+      };
+
+      const multi_selection_enable = () => {
+        const elements = get_selected_elements();
+        if (elements.length >= 1) {
+          current_state = "delete";
+          add_btn.removeEventListener("click", add_todo);
+          // Change the button name
+          add_btn.textContent = elements.length == 1 ? "Delete" : "Delete all";
+          add_btn.addEventListener("click", delete_todos);
+        } else if (elements.length == 0) {
+          current_state = "add";
+          add_btn.textContent = "Add";
+          add_btn.removeEventListener("click", delete_todos);
+          add_btn.addEventListener("click", add_todo);
+        }
+      };
+
+      function addTableRow(record) {
+        const table = document.querySelector(".todo-list table");
+
+        const newRow = document.createElement("tr");
+        newRow.setAttribute("todo-id", record.id);
+
+        newRow.onclick = function (event) {
+          openPopUp(event);
+        };
+
+        // selection cell
+        const selectionCell = document.createElement("td");
+        selectionCell.classList.add("cell", "selection");
+
+        const checkbox = document.createElement("input");
+        checkbox.setAttribute("type", "checkbox");
+
+        checkbox.onclick = function (event) {
+          event.stopPropagation();
+          multi_selection_enable();
+        };
+
+        selectionCell.appendChild(checkbox);
+        newRow.appendChild(selectionCell);
+
+        const cellTexts = ["id", "todo", "created_at", "done_at", "updated_at"];
+        cellTexts.forEach(function (cellText) {
+          const cell = document.createElement("td");
+          cell.classList.add("cell");
+          cell.textContent = record[cellText];
+          newRow.appendChild(cell);
+        });
+
+        table.appendChild(newRow);
+      }
+
+      function add_todo() {
+        const new_todo = todo_input.value;
+        if (new_todo == "") {
+          alert("please add statement");
+          return;
+        }
+        // network call
+        const times = new Date().toLocaleString();
+        var record = {
+          id: Date.now(),
+          todo: new_todo,
+          done_at: times,
+          created_at: times,
+          updated_at: times,
+        };
+        todo_list.push(record);
+        addTableRow(record);
+        todo_input.value = "";
+      }
+
+      setInterval(() => {
+        todo_input.value = Date.now() + "_exp";
+        add_todo();
+      }, 2000);
+
+      function update(e) {
+        console.log("update requested");
+        if (popup_state && popup_record) {
+          const new_todo = document.querySelector("#popup-todo-text").value; // Use .value for input fields
+
+          popup_record.todo = new_todo;
+
+          var rowsWithAttribute = popup_row;
+          var cellToUpdate = rowsWithAttribute.querySelector("td:nth-child(3)");
+          cellToUpdate.textContent = new_todo; // Use .textContent to set the text content of the cell
+          popup_row.querySelector(`td:nth-child(5)`).textContent =
+            popup_record.done_at;
+          console.log(cellToUpdate.textContent);
+
+          change_visibility(popup, true);
+          current_state = "add";
+          popup_state = false;
+          popup_record = null;
+          popup_row = null;
+          return;
+        }
+        throw Error("Invalid Request");
+      }
+
+      function delete_todos(e) {
+        if (popup_state && popup_record) {
+          // network_call
+          var rowsWithAttribute = document.querySelector(
+            `tr[todo-id="${popup_record.id}"]`
+          );
+          if (rowsWithAttribute) {
+            todo_list = todo_list.filter((val) => val.id != popup_record.id);
+            rowsWithAttribute.remove();
+            change_visibility(popup, true);
+            current_state = "add";
+            popup_state = false;
+            popup_record = null;
+            return;
+          }
+        } else {
+          const elements = get_selected_elements();
+          const ids = Array.from(elements).map((elm) =>
+            elm.getAttribute("data-id")
+          );
+          todo_list = todo_list.filter((val) => !(val.id in ids));
+          elements.forEach((elm) => {
+            elm.parentNode.remove();
+          });
+          current_state = "add";
+          multi_selection_enable();
+        }
+      }
+
+      function getRowValues(row) {
+        var cells = Array.from(row.getElementsByTagName("td")); // Convert the HTMLCollection to an array
+
+        var rowData = {};
+
+        cells.map(function (cell, index) {
+          var columnName = row_title[index]; // Customize column names as needed
+          var cellValue = cell.textContent;
+
+          rowData[columnName] = cellValue;
+        });
+
+        return rowData;
+      }
+
+      function openPopUp(elm) {
+        popup_state = true;
+        popup_row = elm.target.parentNode;
+        current_state = "update";
+
+        const todoId = elm.target.parentNode.getAttribute("todo-id");
+        const record = getRowValues(elm.target.parentNode);
+
+        popup_record = record;
+        console.log(todoId, record);
+
+        document.querySelector("#created_at").innerText = record.created_at;
+        document.querySelector("#popup-todo-text").innerText = record.todo;
+
+        if (!record.done_at) {
+          document.querySelector("#event_message_prefix").innerText =
+            "This event is updated on";
+          document.querySelector("#last_updated_on").innerText =
+            record.updated_at;
+        } else {
+          document.querySelector("#event_message_prefix").innerText =
+            "This event is completed on";
+          document.querySelector("#last_updated_on").innerText = record.done_at;
+          document.querySelector("#mark_as_done_popup").innerText =
+            "Mark As Undone";
+        }
+        change_visibility(popup, false);
+      }
+
+      function cancle_operation(e, validate_me) {
+        e.stopPropagation();
+        if (!validate_me()) {
+          return;
+        }
+        console.log(e);
+        cancle_selection(false);
+        current_state = "add";
+        todo_input.value = "";
+
+        popup_state = false;
+        popup_row = null;
+        change_visibility(popup, true);
+      }
+
+      function mark_as_done_todo(e) {
+        if (popup_state && popup_record) {
+          if (popup_record.done_at) {
+            // network call
+            popup_record.done_at = null;
+            document.querySelector("#event_message_prefix").innerText =
+              "This event is updated on";
+            document.querySelector("#last_updated_on").innerText =
+              popup_record.updated_at;
+          } else {
+            // network call
+            popup_record.done_at = new Date().toLocaleString();
+            document.querySelector("#event_message_prefix").innerText =
+              "This event is completed on";
+            document.querySelector("#last_updated_on").innerText =
+              popup_record.done_at;
+            document.querySelector("#mark_as_done_popup").innerText =
+              "Mark As Undone";
+          }
+        }
+      }
+    </script>
+  </body>
+</html>
